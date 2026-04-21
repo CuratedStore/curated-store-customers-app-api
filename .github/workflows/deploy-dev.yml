@@ -1,0 +1,99 @@
+name: Deploy Development (dev)
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-development
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Build development environment file
+        run: |
+          cat > .env.ci <<'EOF'
+          APP_NAME="${{ secrets.DEV_APP_NAME }} - Customers API"
+          APP_ENV=development
+          APP_KEY=${{ secrets.DEV_APP_KEY }}
+          APP_DEBUG=true
+          APP_URL=${{ secrets.DEV_CUSTOMERS_API_URL }}
+
+          LOG_CHANNEL=stack
+          LOG_LEVEL=debug
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.DEV_DB_HOST }}
+          DB_PORT=${{ secrets.DEV_DB_PORT }}
+          DB_DATABASE=${{ secrets.DEV_DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DEV_DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }}
+
+          SESSION_DRIVER=database
+          SESSION_LIFETIME=120
+          SESSION_ENCRYPT=false
+          SESSION_PATH=/
+          SESSION_DOMAIN=${{ secrets.DEV_SESSION_DOMAIN }}
+
+          BROADCAST_CONNECTION=log
+          FILESYSTEM_DISK=local
+          QUEUE_CONNECTION=database
+          CACHE_STORE=database
+
+          REDIS_CLIENT=phpredis
+          REDIS_HOST=127.0.0.1
+          REDIS_PASSWORD=null
+          REDIS_PORT=6379
+
+          MAIL_MAILER=smtp
+          MAIL_HOST=${{ secrets.DEV_MAIL_HOST }}
+          MAIL_PORT=${{ secrets.DEV_MAIL_PORT }}
+          MAIL_USERNAME=${{ secrets.DEV_MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.DEV_MAIL_PASSWORD }}
+          MAIL_ENCRYPTION=${{ secrets.DEV_MAIL_ENCRYPTION }}
+          MAIL_FROM_ADDRESS=${{ secrets.DEV_MAIL_FROM_ADDRESS }}
+          MAIL_FROM_NAME="${{ secrets.DEV_MAIL_FROM_NAME }}"
+          EOF
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy files to development
+        run: |
+          tar --exclude='.git' --exclude='.github' --exclude='vendor' --exclude='.env' --exclude='storage/logs/*' -czf - . \
+            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/customers-api/public_html"'
+
+      - name: Upload development environment file
+        run: |
+          cat .env.ci | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'cat > "/home/u686550969/domains/curatedstore.in/customers-api/public_html/.env"'
+
+      - name: Run development post-deploy commands
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
+            set -e
+            cd "/home/u686550969/domains/curatedstore.in/customers-api/public_html"
+            php artisan key:generate --force
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+          '
