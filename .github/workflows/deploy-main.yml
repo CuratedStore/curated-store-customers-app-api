@@ -91,6 +91,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
             set -e
             cd "/home/u686550969/domains/curatedstore.in/customers-api/public_html"
+            cp -f public/index.php index.php
+            cp -f public/.htaccess .htaccess
             /opt/alt/php82/usr/bin/php artisan migrate --force
             /opt/alt/php82/usr/bin/php artisan optimize:clear
             /opt/alt/php82/usr/bin/php artisan l5-swagger:generate
