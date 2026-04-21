@@ -91,6 +91,9 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
             set -e
             cd "/home/u686550969/domains/curatedstore.in/public_html/customers-api"
+            cp -f public/index.php index.php
+            sed -i "s#__DIR__.'/../storage#__DIR__.'/storage#; s#__DIR__.'/../vendor#__DIR__.'/vendor#; s#__DIR__.'/../bootstrap#__DIR__.'/bootstrap#" index.php
+            cp -f public/.htaccess .htaccess
             php artisan key:generate --force
             php artisan migrate --force
             php artisan optimize:clear

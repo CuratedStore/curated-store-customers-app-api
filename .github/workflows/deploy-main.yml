@@ -92,6 +92,7 @@ jobs:
             set -e
             cd "/home/u686550969/domains/curatedstore.in/public_html/customers-api"
             cp -f public/index.php index.php
+            sed -i "s#__DIR__.'/../storage#__DIR__.'/storage#; s#__DIR__.'/../vendor#__DIR__.'/vendor#; s#__DIR__.'/../bootstrap#__DIR__.'/bootstrap#" index.php
             cp -f public/.htaccess .htaccess
             /opt/alt/php82/usr/bin/php artisan migrate --force
             /opt/alt/php82/usr/bin/php artisan optimize:clear
