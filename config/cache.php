@@ -21,7 +21,9 @@ $stores = [
     ],
 ];
 
-if (class_exists(Memcached::class)) {
+$memcachedClass = 'Memcached';
+
+if (class_exists($memcachedClass)) {
     $stores['memcached'] = [
         'driver' => 'memcached',
         'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
@@ -30,7 +32,7 @@ if (class_exists(Memcached::class)) {
             env('MEMCACHED_PASSWORD'),
         ],
         'options' => [
-            Memcached::OPT_CONNECT_TIMEOUT => 2000,
+            constant($memcachedClass.'::OPT_CONNECT_TIMEOUT') => 2000,
         ],
         'servers' => [
             [

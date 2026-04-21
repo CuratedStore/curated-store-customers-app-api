@@ -1,47 +1,47 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
     return response()->json(['status' => 'ok']);
 });
 
-$notImplemented = function (string $feature) {
-    return response()->json([
-        'message' => 'Endpoint scaffolded but not implemented yet.',
-        'feature' => $feature,
-    ], 501);
-};
-
 Route::prefix('api')->group(function () {
-    // Authentication routes
-    Route::post('/auth/register', fn () => $notImplemented('auth.register'));
-    Route::post('/auth/login', fn () => $notImplemented('auth.login'));
-    
-    // Protected routes
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/auth/logout', fn () => $notImplemented('auth.logout'));
-        
-        // Products
-        Route::get('/products', fn () => $notImplemented('products.index'));
-        Route::get('/products/{id}', fn () => $notImplemented('products.show'));
-        
-        // Categories
-        Route::get('/categories', fn () => $notImplemented('categories.index'));
-        
-        // Cart
-        Route::post('/cart/add', fn () => $notImplemented('cart.add'));
-        Route::get('/cart', fn () => $notImplemented('cart.index'));
-        Route::delete('/cart/{id}', fn () => $notImplemented('cart.remove'));
-        
-        // Orders
-        Route::post('/orders', fn () => $notImplemented('orders.store'));
-        Route::get('/orders', fn () => $notImplemented('orders.index'));
-        Route::get('/orders/{id}', fn () => $notImplemented('orders.show'));
-        
-        // Account
-        Route::get('/account/profile', fn () => $notImplemented('account.profile'));
-        Route::put('/account/profile', fn () => $notImplemented('account.updateProfile'));
-        Route::get('/account/addresses', fn () => $notImplemented('account.addresses'));
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/request-otp', [AuthController::class, 'requestOtp']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+
+    Route::middleware('api.token')->group(function () {
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+        Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/products/{id}', [ProductController::class, 'show']);
+        Route::get('/categories', [CategoryController::class, 'index']);
+
+        Route::post('/cart/add', [CartController::class, 'add']);
+        Route::get('/cart', [CartController::class, 'index']);
+        Route::delete('/cart/{id}', [CartController::class, 'remove']);
+
+        Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::get('/orders/{id}', [OrderController::class, 'show']);
+        Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+        Route::post('/orders/{id}/return', [OrderController::class, 'requestReturn']);
+        Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice']);
+
+        Route::get('/account/profile', [AccountController::class, 'profile']);
+        Route::put('/account/profile', [AccountController::class, 'updateProfile']);
+        Route::get('/account/addresses', [AccountController::class, 'addresses']);
+        Route::post('/account/addresses', [AccountController::class, 'addAddress']);
+        Route::delete('/account/addresses/{id}', [AccountController::class, 'deleteAddress']);
+        Route::put('/account/addresses/{id}/default', [AccountController::class, 'setDefaultAddress']);
+        Route::get('/account/preferences', [AccountController::class, 'preferences']);
+        Route::put('/account/preferences', [AccountController::class, 'updatePreferences']);
     });
 });

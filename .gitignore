@@ -15,6 +15,7 @@ storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
 storage/api-docs/*
+storage/app/customers_api_data.json
 bootstrap/cache/*.php
 .phpunit.result.cache
 database.sqlite
