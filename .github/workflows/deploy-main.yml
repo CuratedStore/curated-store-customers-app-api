@@ -79,8 +79,8 @@ jobs:
 
       - name: Deploy files to server
         run: |
-          tar --exclude='.git' --exclude='.github' --exclude='vendor' --exclude='.env' --exclude='storage/logs/*' -czf - . \
-            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/customers-api/public_html"'
+          tar --exclude='.git' --exclude='.github' --exclude='.env' -czf - . \
+            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/app/public" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/framework/cache/data" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/framework/sessions" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/framework/views" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/logs" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/bootstrap/cache" && chmod -R ug+rw "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/bootstrap/cache"'
 
       - name: Upload environment file
         run: |
@@ -91,9 +91,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
             set -e
             cd "/home/u686550969/domains/curatedstore.in/customers-api/public_html"
-            php artisan key:generate --force
-            php artisan migrate --force
-            php artisan optimize:clear
-            php artisan config:cache
-            php artisan route:cache
+            /opt/alt/php82/usr/bin/php artisan migrate --force
+            /opt/alt/php82/usr/bin/php artisan optimize:clear
+            /opt/alt/php82/usr/bin/php artisan config:cache
+            /opt/alt/php82/usr/bin/php artisan route:cache
           '
