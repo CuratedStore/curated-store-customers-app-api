@@ -93,6 +93,7 @@ jobs:
             cd "/home/u686550969/domains/curatedstore.in/customers-api/public_html"
             /opt/alt/php82/usr/bin/php artisan migrate --force
             /opt/alt/php82/usr/bin/php artisan optimize:clear
+            /opt/alt/php82/usr/bin/php artisan l5-swagger:generate
             /opt/alt/php82/usr/bin/php artisan config:cache
             /opt/alt/php82/usr/bin/php artisan route:cache
           '
