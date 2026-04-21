@@ -80,17 +80,17 @@ jobs:
       - name: Deploy files to development
         run: |
           tar --exclude='.git' --exclude='.github' --exclude='vendor' --exclude='.env' --exclude='storage/logs/*' -czf - . \
-            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/customers-api/public_html"'
+            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/public_html/customers-api" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/public_html/customers-api"'
 
       - name: Upload development environment file
         run: |
-          cat .env.ci | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'cat > "/home/u686550969/domains/curatedstore.in/customers-api/public_html/.env"'
+          cat .env.ci | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'cat > "/home/u686550969/domains/curatedstore.in/public_html/customers-api/.env"'
 
       - name: Run development post-deploy commands
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
             set -e
-            cd "/home/u686550969/domains/curatedstore.in/customers-api/public_html"
+            cd "/home/u686550969/domains/curatedstore.in/public_html/customers-api"
             php artisan key:generate --force
             php artisan migrate --force
             php artisan optimize:clear

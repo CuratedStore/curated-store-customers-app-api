@@ -80,17 +80,17 @@ jobs:
       - name: Deploy files to server
         run: |
           tar --exclude='.git' --exclude='.github' --exclude='.env' -czf - . \
-            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/customers-api/public_html" && mkdir -p "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/app/public" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/framework/cache/data" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/framework/sessions" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/framework/views" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage/logs" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/bootstrap/cache" && chmod -R ug+rw "/home/u686550969/domains/curatedstore.in/customers-api/public_html/storage" "/home/u686550969/domains/curatedstore.in/customers-api/public_html/bootstrap/cache"'
+            | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'mkdir -p "/home/u686550969/domains/curatedstore.in/public_html/customers-api" && tar -xzf - -C "/home/u686550969/domains/curatedstore.in/public_html/customers-api" && mkdir -p "/home/u686550969/domains/curatedstore.in/public_html/customers-api/storage/app/public" "/home/u686550969/domains/curatedstore.in/public_html/customers-api/storage/framework/cache/data" "/home/u686550969/domains/curatedstore.in/public_html/customers-api/storage/framework/sessions" "/home/u686550969/domains/curatedstore.in/public_html/customers-api/storage/framework/views" "/home/u686550969/domains/curatedstore.in/public_html/customers-api/storage/logs" "/home/u686550969/domains/curatedstore.in/public_html/customers-api/bootstrap/cache" && chmod -R ug+rw "/home/u686550969/domains/curatedstore.in/public_html/customers-api/storage" "/home/u686550969/domains/curatedstore.in/public_html/customers-api/bootstrap/cache"'
 
       - name: Upload environment file
         run: |
-          cat .env.ci | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'cat > "/home/u686550969/domains/curatedstore.in/customers-api/public_html/.env"'
+          cat .env.ci | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" 'cat > "/home/u686550969/domains/curatedstore.in/public_html/customers-api/.env"'
 
       - name: Run post-deploy commands
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
             set -e
-            cd "/home/u686550969/domains/curatedstore.in/customers-api/public_html"
+            cd "/home/u686550969/domains/curatedstore.in/public_html/customers-api"
             cp -f public/index.php index.php
             cp -f public/.htaccess .htaccess
             /opt/alt/php82/usr/bin/php artisan migrate --force
