@@ -65,3 +65,62 @@ Run tests with:
 ```bash
 php artisan test
 ```
+
+## CI/CD Deployment (Production)
+
+### Workflow
+- GitHub Actions workflow: `.github/workflows/deploy-main.yml`
+- Trigger: push to `main`
+- Target server path used by workflow:
+	- `/home/u686550969/domains/curatedstore.in/customers-api/public_html`
+
+### Required GitHub Secrets
+- `SSH_HOST`
+- `SSH_PORT`
+- `SSH_USER`
+- `SSH_PRIVATE_KEY`
+- `PROD_APP_NAME`
+- `PROD_APP_KEY`
+- `PROD_CUSTOMERS_API_URL`
+- `PROD_DB_HOST`
+- `PROD_DB_PORT`
+- `PROD_DB_DATABASE`
+- `PROD_DB_USERNAME`
+- `PROD_DB_PASSWORD`
+- `PROD_SESSION_DOMAIN`
+- `PROD_MAIL_HOST`
+- `PROD_MAIL_PORT`
+- `PROD_MAIL_USERNAME`
+- `PROD_MAIL_PASSWORD`
+- `PROD_MAIL_ENCRYPTION`
+- `PROD_MAIL_FROM_ADDRESS`
+- `PROD_MAIL_FROM_NAME`
+
+### hPanel Subdomain Mapping (Important)
+If `customers-api.curatedstore.in` is configured to this hPanel folder:
+- `/home/u686550969/domains/curatedstore.in/public_html/customers-api`
+
+then ensure it contains the deployed API files (not Hostinger placeholder files).
+
+Recommended mapping is to point subdomain document root directly to:
+- `/home/u686550969/domains/curatedstore.in/customers-api/public_html`
+
+### Fallback Sync Command
+If hPanel cannot map the subdomain root directly, run this to mirror files:
+
+```bash
+rsync -a --delete /home/u686550969/domains/curatedstore.in/customers-api/public_html/ /home/u686550969/domains/curatedstore.in/public_html/customers-api/
+```
+
+### Post-Deploy Verification
+- Landing page should open Swagger UI at root:
+	- `https://customers-api.curatedstore.in/`
+- Swagger docs endpoint:
+	- `https://customers-api.curatedstore.in/api/documentation`
+
+Quick header check:
+
+```bash
+curl -Ik https://customers-api.curatedstore.in/
+curl -Ik https://customers-api.curatedstore.in/api/documentation
+```
