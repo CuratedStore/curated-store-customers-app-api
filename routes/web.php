@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return ['message' => 'Welcome to Curated Store Customers API'];
+    return redirect('/api/documentation');
 });
